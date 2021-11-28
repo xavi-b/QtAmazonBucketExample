@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     // change by your bucket location
     QString bucketLocation = "eu-west-3";
     // change by the location in your bucket
-    QString remotePath = "/test2/adwsfdwq";
+    QString remotePath = "test2";
 
     QString endpoint = "s3-" + bucketLocation + ".amazonaws.com";
     QString yyyymmdd = QDateTime::currentDateTimeUtc().toString("yyyyMMdd");
@@ -35,8 +35,9 @@ int main(int argc, char *argv[])
     qDebug() << "----contentHash";
     qDebug().noquote() << contentHash;
 
-    QString canonicalRequest = "GET\n/" + s3Bucket + remotePath
-                               + "\n\ncontent-length:" + contentLength + "\nhost:" + endpoint
+    QString canonicalRequest = "GET\n/" + s3Bucket + "/"
+                               + "\n" + "prefix=" + remotePath
+                               + "\ncontent-length:" + contentLength + "\nhost:" + endpoint
                                + "\nx-amz-content-sha256:" + contentHash + "\nx-amz-date:" + isoDate
                                + "\n\ncontent-length;host;x-amz-content-sha256;x-amz-date\n"
                                + contentHash;
@@ -60,7 +61,7 @@ int main(int argc, char *argv[])
     qDebug() << "----authoriz";
     qDebug().noquote() << authoriz;
 
-    QUrl url = "https://" + endpoint + "/" + s3Bucket + remotePath;
+    QUrl url = "https://" + endpoint + "/" + s3Bucket + "/?prefix=" + remotePath;
 
     QNetworkAccessManager manager;
     QNetworkRequest req(url);
