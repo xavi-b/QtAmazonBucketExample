@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     qDebug() << "----contentHash";
     qDebug().noquote() << contentHash;
 
-    QString canonicalRequest = "DELETE\n/" + s3Bucket + remotePath
+    QString canonicalRequest = "GET\n/" + s3Bucket + remotePath
                                + "\n\ncontent-length:" + contentLength + "\nhost:" + endpoint
                                + "\nx-amz-content-sha256:" + contentHash + "\nx-amz-date:" + isoDate
                                + "\n\ncontent-length;host;x-amz-content-sha256;x-amz-date\n"
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     req.setRawHeader("x-amz-date", isoDate.toUtf8());
     req.setRawHeader("x-amz-content-sha256", contentHash.toUtf8());
     req.setRawHeader("Authorization", authoriz.toUtf8());
-    auto reply = manager.sendCustomRequest(req, "DELETE");
+    auto reply = manager.sendCustomRequest(req, "GET");
     QObject::connect(reply, &QNetworkReply::errorOccurred, [&](){
         qDebug() << "----Request headers";
         for(auto r : req.rawHeaderList())
