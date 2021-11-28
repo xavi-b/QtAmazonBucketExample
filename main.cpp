@@ -1,12 +1,12 @@
 #include <QCoreApplication>
 #include <QDebug>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
 #include <QFile>
 #include <QFileInfo>
-#include <QMimeDatabase>
 #include <QMessageAuthenticationCode>
+#include <QMimeDatabase>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 
 int main(int argc, char *argv[])
 {
@@ -16,35 +16,30 @@ int main(int argc, char *argv[])
     QString s3Key = "";
     // change by your S3 secret key
     QString s3Secret = "";
-    // change by your local path
-    QString filepath = "/home/xavier/workspace/QtAmazonBucket/file.txt";
     // change by your bucket name
     QString s3Bucket = "";
     // change by your bucket location
     QString bucketLocation = "eu-west-3";
     // change by the location in your bucket
-    QString remotePath = "/file.txt";
+    QString remotePath = "/test2/adwsfdwq";
 
     QString endpoint = "s3-" + bucketLocation + ".amazonaws.com";
     QString yyyymmdd = QDateTime::currentDateTimeUtc().toString("yyyyMMdd");
     QString isoDate = QDateTime::currentDateTimeUtc().toString("yyyyMMddThhmmssZ");
 
-    QMimeDatabase db;
-    QMimeType type = db.mimeTypeForFile(filepath);
-    QString contentType = type.name();
+    QByteArray data;
 
-    QFile file(filepath);
-    if(!file.open(QFile::ReadOnly)) {
-        qDebug() << file.errorString();
-        return 1;
-    }
-
-    QByteArray data = file.readAll();
-
-    QString contentLength = QString::number(QFileInfo(filepath).size());
+    QString contentLength = QString::number(0);
     QString contentHash = QCryptographicHash::hash(data, QCryptographicHash::Sha256).toHex();
 
-    QString canonicalRequest = "PUT\n/" + s3Bucket + remotePath + "\n\ncontent-length:" + contentLength + "\nhost:" + endpoint + "\nx-amz-content-sha256:" + contentHash + "\nx-amz-date:" + isoDate + "\n\ncontent-length;host;x-amz-content-sha256;x-amz-date\n" + contentHash;
+    qDebug() << "----contentHash";
+    qDebug().noquote() << contentHash;
+
+    QString canonicalRequest = "DELETE\n/" + s3Bucket + remotePath
+                               + "\n\ncontent-length:" + contentLength + "\nhost:" + endpoint
+                               + "\nx-amz-content-sha256:" + contentHash + "\nx-amz-date:" + isoDate
+                               + "\n\ncontent-length;host;x-amz-content-sha256;x-amz-date\n"
+                               + contentHash;
     QString canonicalRequestHash = QCryptographicHash::hash(canonicalRequest.trimmed().toUtf8(), QCryptographicHash::Sha256).toHex();
 
     QString stringToSign = "AWS4-HMAC-SHA256\n" + isoDate + "\n" + yyyymmdd + "/" + bucketLocation + "/s3/aws4_request\n" + canonicalRequestHash + "";
@@ -74,7 +69,7 @@ int main(int argc, char *argv[])
     req.setRawHeader("x-amz-date", isoDate.toUtf8());
     req.setRawHeader("x-amz-content-sha256", contentHash.toUtf8());
     req.setRawHeader("Authorization", authoriz.toUtf8());
-    auto reply = manager.sendCustomRequest(req, "PUT", data);
+    auto reply = manager.sendCustomRequest(req, "DELETE");
     QObject::connect(reply, &QNetworkReply::errorOccurred, [&](){
         qDebug() << "----Request headers";
         for(auto r : req.rawHeaderList())
