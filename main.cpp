@@ -36,7 +36,7 @@ void deleteObject(QString const& remotePath, bool quitAfterwards = false)
     qDebug() << "----contentHash";
     qDebug().noquote() << contentHash;
 
-    QString canonicalRequest = "DELETE\n/" + s3Bucket + "/" + remotePath
+    QString canonicalRequest = "DELETE\n/" + s3Bucket + "/" + QUrl::toPercentEncoding(remotePath, "/")
                                + "\n"
                                + "\ncontent-length:" + contentLength + "\nhost:" + endpoint
                                + "\nx-amz-content-sha256:" + contentHash + "\nx-amz-date:" + isoDate
@@ -104,7 +104,7 @@ void deleteFolder(QString const& pathPrefix)
     qDebug().noquote() << contentHash;
 
     QString canonicalRequest = "GET\n/" + s3Bucket + "/"
-                               + "\n" + "prefix=" + pathPrefix
+                               + "\n" + "prefix=" + QUrl::toPercentEncoding(pathPrefix)
                                + "\ncontent-length:" + contentLength + "\nhost:" + endpoint
                                + "\nx-amz-content-sha256:" + contentHash + "\nx-amz-date:" + isoDate
                                + "\n\ncontent-length;host;x-amz-content-sha256;x-amz-date\n"
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     // change by the location in your bucket
-    QString pathPrefix = "test2";
+    QString pathPrefix = "test/test";
 
     deleteFolder(pathPrefix);
 
